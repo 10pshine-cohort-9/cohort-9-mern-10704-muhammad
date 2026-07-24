@@ -6,13 +6,24 @@ const server = app.listen(env.PORT, () => {
   logger.info(`Server running in ${env.NODE_ENV} mode on port ${env.PORT}`);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  logger.error({ reason, promise }, 'Unhandled Rejection at Promise');
+const handleFatalError = (type, error) => {
+  logger.error({ type, error }, `Fatal error occurred: ${type}`);
+  server.close(() => {
+    process.exit(1);
+  });
+
+  // Force exit after 10s if connections fail to close
+  setTimeout(() => {
+    process.exit(1);
+  }, 10000).unref();
+};
+
+process.on('unhandledRejection', (reason) => {
+  handleFatalError('unhandledRejection', reason);
 });
 
 process.on('uncaughtException', (error) => {
-  logger.error({ error }, 'Uncaught Exception thrown');
-  process.exit(1);
+  handleFatalError('uncaughtException', error);
 });
 
 module.exports = server;

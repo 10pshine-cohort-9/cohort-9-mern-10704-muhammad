@@ -10,10 +10,15 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 400;
     code = 'BAD_REQUEST';
     message = 'Invalid JSON body syntax';
+    details = [];
   }
 
   if (statusCode >= 500) {
     logger.error({ err, reqId: req.id }, 'Unhandled server error');
+    // Security: Redact internal 5xx error details from public client response
+    code = 'INTERNAL_ERROR';
+    message = 'An unexpected server error occurred';
+    details = [];
   } else {
     logger.warn({ code, message, statusCode, reqId: req.id }, 'Handled operational error');
   }

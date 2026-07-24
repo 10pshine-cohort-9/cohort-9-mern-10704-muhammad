@@ -1,13 +1,27 @@
 const pino = require('pino');
+const env = require('../config/env');
 
 const logger = pino({
-  level: process.env.LOG_LEVEL || 'info',
+  level: env.LOG_LEVEL,
   redact: {
-    paths: ['password', 'passwordHash', 'token', 'accessToken', 'refreshToken', 'req.headers.authorization', 'req.headers.cookie'],
+    paths: [
+      'password',
+      'passwordHash',
+      'token',
+      'accessToken',
+      'refreshToken',
+      '*.password',
+      '*.passwordHash',
+      '*.token',
+      '*.accessToken',
+      '*.refreshToken',
+      'req.headers.authorization',
+      'req.headers.cookie',
+    ],
     censor: '[REDACTED]',
   },
   transport:
-    process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test'
+    env.NODE_ENV === 'development'
       ? {
           target: 'pino-pretty',
           options: {

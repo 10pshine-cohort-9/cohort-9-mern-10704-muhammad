@@ -40,6 +40,7 @@ describe('Custom Error Classes Unit Tests', () => {
     const details = [{ field: 'email', message: 'Invalid format' }];
     const err = new ValidationError('Validation failed', details);
     expect(err.statusCode).to.equal(422);
+    expect(err.code).to.equal('VALIDATION_ERROR');
     expect(err.details).to.deep.equal(details);
   });
 });

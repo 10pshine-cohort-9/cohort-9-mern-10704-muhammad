@@ -56,7 +56,7 @@ All subsequent backend modules depend on a shared server foundation, error class
 - [ ] Health check endpoint (`GET /api/v1/health`)
 
 #### Files/Folders Expected
-```
+```text
 /backend
   package.json
   .gitignore
@@ -71,7 +71,7 @@ All subsequent backend modules depend on a shared server foundation, error class
       middleware/validate.js
     app.js
     index.js
-```
+```text
 
 #### Acceptance Criteria
 - Server starts cleanly on configured `PORT`.
@@ -132,7 +132,7 @@ User accounts and identity context must exist before any user-owned resources (n
 - [ ] Auth Rate Limiter (`src/common/middleware/rateLimiter.js`)
 
 #### Files/Folders Expected
-```
+```text
 /backend/src/
   common/middleware/
     authGuard.js
@@ -147,7 +147,7 @@ User accounts and identity context must exist before any user-owned resources (n
 /backend/tests/
   unit/auth/auth.service.test.js
   integration/auth.test.js
-```
+```text
 
 #### Acceptance Criteria
 - `POST /api/v1/auth/register` creates user with cost factor 12 bcrypt hash and returns access token + httpOnly refresh cookie.
@@ -204,7 +204,7 @@ Notes require folder and tag references during creation and update operations.
 - [ ] Routes (`folders.routes.js`, `tags.routes.js`)
 
 #### Files/Folders Expected
-```
+```text
 /backend/src/modules/
   folders/
     folders.model.js
@@ -220,7 +220,7 @@ Notes require folder and tag references during creation and update operations.
     tags.service.js
     tags.controller.js
     tags.routes.js
-```
+```text
 
 #### Acceptance Criteria
 - `GET /api/v1/folders/tree` returns complete nested tree structure for current user.
@@ -276,7 +276,7 @@ Notes form the core domain model of NotesHub.
 - [ ] Pagination helper (`src/common/utils/pagination.js`)
 
 #### Files/Folders Expected
-```
+```text
 /backend/src/
   common/utils/pagination.js
   modules/notes/
@@ -289,7 +289,7 @@ Notes form the core domain model of NotesHub.
 /backend/tests/
   unit/notes/notes.service.test.js
   integration/notes.test.js
-```
+```text
 
 #### Acceptance Criteria
 - Creating/updating notes auto-extracts `contentPlainText` for search indexing.
@@ -344,7 +344,7 @@ Allows rich media and document attachments to be associated with notes securely.
 - [ ] Attachment Routes (`attachments.routes.js`)
 
 #### Files/Folders Expected
-```
+```text
 /backend/src/
   config/cloudinary.js
   modules/attachments/
@@ -353,7 +353,7 @@ Allows rich media and document attachments to be associated with notes securely.
     attachments.service.js
     attachments.controller.js
     attachments.routes.js
-```
+```text
 
 #### Acceptance Criteria
 - Upload rejects files exceeding size limits (max 10MB) or disallowed MIME types.
@@ -404,14 +404,14 @@ Automates soft-deleted item cleanup and long-running export tasks out-of-band.
 - [ ] Scheduler task trigger (`src/jobs/scheduler.js`)
 
 #### Files/Folders Expected
-```
+```text
 /backend/src/
   config/redis.js
   jobs/
     queues/trashPurge.queue.js
     workers/trashPurge.worker.js
     scheduler.js
-```
+```text
 
 #### Acceptance Criteria
 - Trash purge worker correctly identifies notes where `trashedAt` is older than 30 days and permanently deletes them.
@@ -462,7 +462,7 @@ Establishes the design system, global styles, and HTTP client before building us
 - [ ] Base Component Shells (`src/components/layout/Navbar.jsx`, `Sidebar.jsx`)
 
 #### Files/Folders Expected
-```
+```text
 /frontend
   package.json
   vite.config.js
@@ -476,7 +476,7 @@ Establishes the design system, global styles, and HTTP client before building us
     index.css
     main.jsx
     App.jsx
-```
+```text
 
 #### Acceptance Criteria
 - App renders dark-mode themed application shell matching design tokens and `stitch_noteshub_ui_design_system`.
@@ -526,7 +526,7 @@ Users must be able to authenticate in the UI before accessing protected note das
 - [ ] Auth Pages (`src/pages/Login.jsx`, `Register.jsx`, `ForgotPassword.jsx`, `ResetPassword.jsx`) based on `stitch_noteshub_ui_design_system`
 
 #### Files/Folders Expected
-```
+```text
 /frontend/src/
   context/AuthContext.jsx
   components/auth/ProtectedRoute.jsx
@@ -535,7 +535,7 @@ Users must be able to authenticate in the UI before accessing protected note das
     Register.jsx
     ForgotPassword.jsx
     ResetPassword.jsx
-```
+```text
 
 #### Acceptance Criteria
 - UI matches the layout, dark-mode styling, and typography of `stitch_noteshub_ui_design_system` screens.
@@ -588,7 +588,7 @@ Represents the primary workspace experience for users creating and editing notes
 - [ ] Autosave hook (`src/hooks/useAutosave.js`)
 
 #### Files/Folders Expected
-```
+```text
 /frontend/src/
   components/
     editor/
@@ -601,7 +601,7 @@ Represents the primary workspace experience for users creating and editing notes
     useAutosave.js
   pages/
     Dashboard.jsx
-```
+```text
 
 #### Acceptance Criteria
 - Dashboard matches `stitch_noteshub_ui_design_system` visual layout and dark theme.
@@ -655,7 +655,7 @@ Enables users to organize notes into folders/tags and instantly search through l
 - [ ] Search match highlighter utility (`src/utils/highlight.js`)
 
 #### Files/Folders Expected
-```
+```text
 /frontend/src/
   components/
     folders/FolderTree.jsx
@@ -664,7 +664,7 @@ Enables users to organize notes into folders/tags and instantly search through l
       SearchBar.jsx
       FilterBar.jsx
   utils/highlight.js
-```
+```text
 
 #### Acceptance Criteria
 - Layout and components match `stitch_noteshub_ui_design_system` screens.
@@ -714,12 +714,12 @@ Ensures automated code quality gates on PRs and automated production builds upon
 - [ ] Deployment Guide (`DEPLOYMENT.md`)
 
 #### Files/Folders Expected
-```
+```text
 .github/
   workflows/ci.yml
 render.yaml
 DEPLOYMENT.md
-```
+```text
 
 #### Acceptance Criteria
 - GitHub Actions triggers automatically on pull requests to `develop` and `main`.
@@ -757,7 +757,7 @@ graph TD
     C05 --> C11[Chunk 11: Deployment & CI/CD]
     C06 --> C11
     C10 --> C11
-```
+```text
 
 ---
 

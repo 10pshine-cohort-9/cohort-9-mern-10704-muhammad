@@ -43,7 +43,7 @@ It provides user authentication, rich text editing with Tiptap, real-time deboun
 
 ## 📁 Repository Architecture
 
-```
+```text
 cohort-9-mern-10704-muhammad/
 ├── backend/                  # Express REST API (Layered Architecture)
 │   ├── src/

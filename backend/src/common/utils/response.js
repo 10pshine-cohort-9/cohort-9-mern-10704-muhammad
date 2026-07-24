@@ -1,4 +1,5 @@
-const sendSuccess = (res, { statusCode = 200, message = undefined, data = null, meta = null }) => {
+const sendSuccess = (res, options = {}) => {
+  const { statusCode = 200, message = undefined, data = null, meta = null } = options;
   const payload = {
     success: true,
   };
@@ -13,7 +14,15 @@ const sendSuccess = (res, { statusCode = 200, message = undefined, data = null, 
   return res.status(statusCode).json(payload);
 };
 
-const sendError = (res, { statusCode = 500, code = 'INTERNAL_ERROR', message = 'An unexpected error occurred', details = [], requestId = null }) => {
+const sendError = (res, options = {}) => {
+  const {
+    statusCode = 500,
+    code = 'INTERNAL_ERROR',
+    message = 'An unexpected error occurred',
+    details = [],
+    requestId = null,
+  } = options;
+
   return res.status(statusCode).json({
     success: false,
     error: {
