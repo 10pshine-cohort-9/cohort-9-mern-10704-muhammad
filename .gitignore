@@ -1,0 +1,21 @@
+# Dependencies & Environment
+node_modules/
+*.log
+.env
+.env.*
+dist/
+build/
+.vscode/
+.DS_Store
+
+# Specification & Design Reference Files
+stitch_noteshub_ui_design_system/
+design-tokens.css
+design-tokens.json
+GIT_WORKFLOW.md
+NotesApp_ERD.mermaid
+NotesApp_PRD.md
+NotesApp_Sprint_Breakdown.md
+NotesApp_TRD.md
+openapi.yaml
+TEST_PLAN.md
