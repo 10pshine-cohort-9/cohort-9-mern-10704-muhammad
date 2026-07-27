@@ -25,6 +25,7 @@ describe('AuthService Unit Tests', () => {
       setPasswordResetToken: sinon.stub(),
       findUserByResetToken: sinon.stub(),
       clearPasswordResetToken: sinon.stub(),
+      consumePasswordResetToken: sinon.stub(),
     };
     authService = createAuthService(mockRepository);
   });
@@ -63,6 +64,22 @@ describe('AuthService Unit Tests', () => {
     it('should throw ConflictError if email is already registered', async () => {
       const registerData = { name: 'Test User', email: 'existing@example.com', password: 'password123' };
       mockRepository.findUserByEmail.resolves({ _id: 'user123', email: registerData.email });
+
+      try {
+        await authService.register(registerData);
+        expect.fail('Should have thrown ConflictError');
+      } catch (err) {
+        expect(err).to.be.instanceOf(ConflictError);
+        expect(err.message).to.equal('Email already registered');
+      }
+    });
+
+    it('should throw ConflictError on Mongo duplicate key error (E11000)', async () => {
+      const registerData = { name: 'Test User', email: 'concurrent@example.com', password: 'password123' };
+      mockRepository.findUserByEmail.resolves(null);
+      const mongoError = new Error('E11000 duplicate key error');
+      mongoError.code = 11000;
+      mockRepository.createUser.rejects(mongoError);
 
       try {
         await authService.register(registerData);
@@ -165,6 +182,16 @@ describe('AuthService Unit Tests', () => {
         expect(err.message).to.equal('Session expired');
       }
     });
+
+    it('should throw AuthError when refresh token is malformed/invalid', async () => {
+      try {
+        await authService.refreshAccessToken('invalid-token');
+        expect.fail('Should have thrown AuthError');
+      } catch (err) {
+        expect(err).to.be.instanceOf(AuthError);
+        expect(err.message).to.equal('Session expired');
+      }
+    });
   });
 
   describe('forgotPassword', () => {
@@ -188,22 +215,16 @@ describe('AuthService Unit Tests', () => {
 
   describe('resetPassword', () => {
     it('should reset password for valid token', async () => {
-      const token = 'valid-token';
-      mockRepository.findUserByResetToken.resolves({ _id: 'user123' });
-      mockRepository.updateUser.resolves({});
-      mockRepository.clearPasswordResetToken.resolves({});
-      mockRepository.incrementRefreshTokenVersion.resolves({});
+      mockRepository.consumePasswordResetToken.resolves({ _id: 'user123' });
 
-      const result = await authService.resetPassword({ token, newPassword: 'newpassword123' });
+      const result = await authService.resetPassword({ token: 'valid-token', newPassword: 'newpassword123' });
 
       expect(result).to.be.true;
-      expect(mockRepository.updateUser.calledOnce).to.be.true;
-      expect(mockRepository.clearPasswordResetToken.calledWith('user123')).to.be.true;
-      expect(mockRepository.incrementRefreshTokenVersion.calledWith('user123')).to.be.true;
+      expect(mockRepository.consumePasswordResetToken.calledOnce).to.be.true;
     });
 
     it('should throw BadRequestError for invalid or expired token', async () => {
-      mockRepository.findUserByResetToken.resolves(null);
+      mockRepository.consumePasswordResetToken.resolves(null);
 
       try {
         await authService.resetPassword({ token: 'invalid-token', newPassword: 'newpassword123' });

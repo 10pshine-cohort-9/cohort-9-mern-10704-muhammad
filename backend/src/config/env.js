@@ -1,16 +1,24 @@
 const { z } = require('zod');
 require('dotenv').config();
 
+const durationRegex = /^(\d+([smhdw]|y)?)$/i;
+
 const envSchema = z
   .object({
     PORT: z.coerce.number().default(5000),
     NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
     LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
-    MONGODB_URI: z.string().default('mongodb://localhost:27017/noteshub'),
+    MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
     JWT_ACCESS_SECRET: z.string().min(16).default('default-access-secret-key-change-me'),
-    JWT_ACCESS_EXPIRES_IN: z.string().default('15m'),
+    JWT_ACCESS_EXPIRES_IN: z
+      .string()
+      .regex(durationRegex, 'Invalid JWT_ACCESS_EXPIRES_IN format')
+      .default('15m'),
     JWT_REFRESH_SECRET: z.string().min(16).default('default-refresh-secret-key-change-me'),
-    JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
+    JWT_REFRESH_EXPIRES_IN: z
+      .string()
+      .regex(durationRegex, 'Invalid JWT_REFRESH_EXPIRES_IN format')
+      .default('7d'),
   })
   .refine(
     (d) =>

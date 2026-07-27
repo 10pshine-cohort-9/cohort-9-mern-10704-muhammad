@@ -42,7 +42,15 @@ const createAuthService = (repository) => {
       }
 
       const passwordHash = await bcrypt.hash(password, 12);
-      const user = await repository.createUser({ name, email, passwordHash });
+      let user;
+      try {
+        user = await repository.createUser({ name, email, passwordHash });
+      } catch (err) {
+        if (err.code === 11000 || (err.name === 'MongoServerError' && err.code === 11000)) {
+          throw new ConflictError('Email already registered');
+        }
+        throw err;
+      }
 
       const userId = getId(user);
       const accessToken = generateAccessToken(userId);
@@ -77,9 +85,14 @@ const createAuthService = (repository) => {
     },
 
     async refreshAccessToken(refreshToken) {
-      const tokenPayload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
-      const userId = tokenPayload.sub;
+      let tokenPayload;
+      try {
+        tokenPayload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
+      } catch (err) {
+        throw new AuthError('Session expired');
+      }
 
+      const userId = tokenPayload.sub;
       const user = await repository.findUserById(userId);
       if (!user || user.refreshTokenVersion !== tokenPayload.version) {
         throw new AuthError('Session expired');
@@ -115,26 +128,21 @@ const createAuthService = (repository) => {
         await repository.setPasswordResetToken(getId(user), { token: hashedToken, expires });
       }
 
-      logger.info({ email }, 'Password reset requested');
+      logger.info('Password reset requested');
       return true;
     },
 
     async resetPassword({ token, newPassword }) {
       const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-      const user = await repository.findUserByResetToken(hashedToken);
+      const passwordHash = await bcrypt.hash(newPassword, 12);
 
-      if (!user) {
+      const updatedUser = await repository.consumePasswordResetToken(hashedToken, passwordHash);
+
+      if (!updatedUser) {
         throw new BadRequestError('Invalid or expired reset token');
       }
 
-      const userId = getId(user);
-      const passwordHash = await bcrypt.hash(newPassword, 12);
-
-      await repository.updateUser(userId, { passwordHash });
-      await repository.clearPasswordResetToken(userId);
-      await repository.incrementRefreshTokenVersion(userId);
-
-      logger.info({ userId }, 'Password reset completed');
+      logger.info({ userId: getId(updatedUser) }, 'Password reset completed');
       return true;
     },
   };

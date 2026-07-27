@@ -33,17 +33,18 @@ const setPasswordResetToken = async (userId, { token, expires }) => {
   ).lean();
 };
 
-const findUserByResetToken = async (token) => {
-  return await User.findOne({
-    passwordResetToken: token,
-    passwordResetExpires: { $gt: new Date() },
-  }).lean();
-};
-
-const clearPasswordResetToken = async (userId) => {
-  return await User.findByIdAndUpdate(
-    userId,
-    { passwordResetToken: null, passwordResetExpires: null },
+const consumePasswordResetToken = async (hashedToken, newPasswordHash) => {
+  return await User.findOneAndUpdate(
+    {
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: new Date() },
+    },
+    {
+      passwordHash: newPasswordHash,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      $inc: { refreshTokenVersion: 1 },
+    },
     { new: true }
   ).lean();
 };
@@ -55,6 +56,5 @@ module.exports = {
   updateUser,
   incrementRefreshTokenVersion,
   setPasswordResetToken,
-  findUserByResetToken,
-  clearPasswordResetToken,
+  consumePasswordResetToken,
 };

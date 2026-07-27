@@ -192,6 +192,8 @@ describe('Auth Module Integration Tests', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.status).to.equal(204);
+      expect(res.headers['set-cookie']).to.exist;
+      expect(res.headers['set-cookie'][0]).to.match(/refreshToken=;/);
     });
 
     it('should return 401 without token', async () => {

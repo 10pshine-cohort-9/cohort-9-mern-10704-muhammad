@@ -71,7 +71,7 @@ All subsequent backend modules depend on a shared server foundation, error class
       middleware/validate.js
     app.js
     index.js
-```text
+```
 
 #### Acceptance Criteria
 - Server starts cleanly on configured `PORT`.

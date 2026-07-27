@@ -11,7 +11,16 @@ const authGuard = asyncHandler(async (req, res, next) => {
   }
 
   const token = authHeader.split(' ')[1];
-  const payload = jwt.verify(token, env.JWT_ACCESS_SECRET);
+  if (!token) {
+    throw new AuthError('Authentication required');
+  }
+
+  let payload;
+  try {
+    payload = jwt.verify(token, env.JWT_ACCESS_SECRET);
+  } catch (err) {
+    throw new AuthError('Invalid or expired authentication token');
+  }
 
   const user = await authRepository.findUserById(payload.sub);
   if (!user) {

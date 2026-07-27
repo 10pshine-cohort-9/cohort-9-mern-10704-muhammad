@@ -6,7 +6,12 @@ const errorHandler = (err, req, res, next) => {
   let message = err.message || 'An unexpected error occurred';
   let details = err.details || [];
 
-  if (err.name === 'SyntaxError' && err.status === 400 && 'body' in err) {
+  if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+    statusCode = 401;
+    code = 'UNAUTHORIZED';
+    message = err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token';
+    details = [];
+  } else if (err.name === 'SyntaxError' && err.status === 400 && 'body' in err) {
     statusCode = 400;
     code = 'BAD_REQUEST';
     message = 'Invalid JSON body syntax';
@@ -15,7 +20,6 @@ const errorHandler = (err, req, res, next) => {
 
   if (statusCode >= 500) {
     logger.error({ err, reqId: req.id }, 'Unhandled server error');
-    // Security: Redact internal 5xx error details from public client response
     code = 'INTERNAL_ERROR';
     message = 'An unexpected server error occurred';
     details = [];
