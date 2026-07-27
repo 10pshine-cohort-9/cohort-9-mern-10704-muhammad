@@ -1,17 +1,11 @@
 const sendSuccess = (res, options = {}) => {
-  const { statusCode = 200, message = undefined, data = null, meta = null } = options;
-  const payload = {
+  const { statusCode = 200, message, data = null, meta = null } = options;
+  return res.status(statusCode).json({
     success: true,
-  };
-
-  if (message !== undefined) {
-    payload.message = message;
-  }
-
-  payload.data = data;
-  payload.meta = meta;
-
-  return res.status(statusCode).json(payload);
+    ...(message !== undefined && { message }),
+    data,
+    meta,
+  });
 };
 
 const sendError = (res, options = {}) => {

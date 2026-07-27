@@ -13,17 +13,10 @@ const envSchema = z
     JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
   })
   .refine(
-    (data) => {
-      if (data.NODE_ENV === 'production') {
-        if (data.JWT_ACCESS_SECRET.includes('default-access-secret-key-change-me')) {
-          return false;
-        }
-        if (data.JWT_REFRESH_SECRET.includes('default-refresh-secret-key-change-me')) {
-          return false;
-        }
-      }
-      return true;
-    },
+    (d) =>
+      d.NODE_ENV !== 'production' ||
+      (!d.JWT_ACCESS_SECRET.includes('default-access-secret-key-change-me') &&
+        !d.JWT_REFRESH_SECRET.includes('default-refresh-secret-key-change-me')),
     {
       message: 'Default JWT secrets must not be used in production environment.',
       path: ['JWT_ACCESS_SECRET'],

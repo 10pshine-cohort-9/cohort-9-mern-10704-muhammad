@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const authRoutes = require('./modules/auth/auth.routes');
 const { sendSuccess } = require('./common/utils/response');
 const { NotFoundError } = require('./common/errors');
 const errorHandler = require('./common/middleware/errorHandler');
@@ -11,6 +12,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
+
+// Auth Module Routes
+app.use('/api/v1/auth', authRoutes);
 
 // Health Check Endpoint
 app.get('/api/v1/health', (req, res) => {

@@ -2,7 +2,7 @@ const pino = require('pino');
 const env = require('../config/env');
 
 const logger = pino({
-  level: env.LOG_LEVEL,
+  level: env.NODE_ENV === 'test' ? 'silent' : env.LOG_LEVEL,
   redact: {
     paths: [
       'password',

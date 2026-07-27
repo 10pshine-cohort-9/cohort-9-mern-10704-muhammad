@@ -6,21 +6,27 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "mocha \"tests/**/*.test.js\" --exit"
+    "test": "cross-env NODE_ENV=test mocha \"tests/**/*.test.js\" --exit"
   },
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^7.3.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.5.1",
     "pino": "^9.3.1",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "chai": "^4.3.10",
+    "cross-env": "^10.1.0",
     "mocha": "^10.7.0",
     "nodemon": "^3.1.4",
     "pino-pretty": "^11.2.1",
+    "sinon": "^18.0.0",
     "supertest": "^7.0.0"
   }
 }
