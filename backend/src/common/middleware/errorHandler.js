@@ -6,7 +6,7 @@ const errorHandler = (err, req, res, next) => {
   let message = err.message || 'An unexpected error occurred';
   let details = err.details || [];
 
-  if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
+  if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError' || err.name === 'NotBeforeError') {
     statusCode = 401;
     code = 'UNAUTHORIZED';
     message = err.name === 'TokenExpiredError' ? 'Token expired' : 'Invalid token';
