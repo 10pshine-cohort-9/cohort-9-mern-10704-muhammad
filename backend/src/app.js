@@ -2,6 +2,8 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const authRoutes = require('./modules/auth/auth.routes');
+const foldersRoutes = require('./modules/folders/folders.routes');
+const tagsRoutes = require('./modules/tags/tags.routes');
 const { sendSuccess } = require('./common/utils/response');
 const { NotFoundError } = require('./common/errors');
 const errorHandler = require('./common/middleware/errorHandler');
@@ -13,8 +15,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors());
 
-// Auth Module Routes
+// Module Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/folders', foldersRoutes);
+app.use('/api/v1/tags', tagsRoutes);
 
 // Health Check Endpoint
 app.get('/api/v1/health', (req, res) => {
