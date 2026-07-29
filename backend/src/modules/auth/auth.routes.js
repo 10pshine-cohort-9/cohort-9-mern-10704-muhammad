@@ -23,9 +23,9 @@ const controller = createAuthController(service);
 router.post('/register', authRateLimiter, validate(registerSchema), asyncHandler(controller.register));
 router.post('/login', authRateLimiter, validate(loginSchema), asyncHandler(controller.login));
 router.post('/logout', authGuard, asyncHandler(controller.logout));
-router.post('/refresh', asyncHandler(controller.refresh));
+router.post('/refresh', authRateLimiter, asyncHandler(controller.refresh));
 router.get('/me', authGuard, asyncHandler(controller.me));
 router.post('/forgot-password', authRateLimiter, validate(forgotPasswordSchema), asyncHandler(controller.forgotPassword));
-router.post('/reset-password', validate(resetPasswordSchema), asyncHandler(controller.resetPassword));
+router.post('/reset-password', authRateLimiter, validate(resetPasswordSchema), asyncHandler(controller.resetPassword));
 
 module.exports = router;

@@ -24,7 +24,7 @@ const createAuthController = (service) => {
       res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
       return sendSuccess(res, {
         statusCode: 201,
-        message: 'Logged in successfully',
+        message: 'Registered successfully',
         data: {
           accessToken: result.accessToken,
           user: result.user,

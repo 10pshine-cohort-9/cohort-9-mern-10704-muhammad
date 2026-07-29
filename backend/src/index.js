@@ -7,7 +7,7 @@ const server = app.listen(env.PORT, () => {
 });
 
 const handleFatalError = (type, error) => {
-  logger.error({ type, error }, `Fatal error occurred: ${type}`);
+  logger.error({ type, err: error }, `Fatal error occurred: ${type}`);
   server.close(() => {
     process.exit(1);
   });

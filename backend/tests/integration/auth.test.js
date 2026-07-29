@@ -78,7 +78,7 @@ describe('Auth Module Integration Tests', () => {
 
       expect(res.status).to.equal(201);
       expect(res.body.success).to.be.true;
-      expect(res.body.message).to.equal('Logged in successfully');
+      expect(res.body.message).to.equal('Registered successfully');
       expect(res.body.data).to.have.property('accessToken');
       expect(res.body.data.user).to.include({
         name: 'Jane Doe',

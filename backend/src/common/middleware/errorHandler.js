@@ -1,6 +1,10 @@
 const logger = require('../../logger');
 
 const errorHandler = (err, req, res, next) => {
+  if (res.headersSent) {
+    return next(err);
+  }
+
   let statusCode = err.statusCode || 500;
   let code = err.code || 'INTERNAL_ERROR';
   let message = err.message || 'An unexpected error occurred';
