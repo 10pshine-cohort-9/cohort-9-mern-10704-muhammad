@@ -217,10 +217,13 @@ describe('AuthService Unit Tests', () => {
     it('should reset password for valid token', async () => {
       mockRepository.consumePasswordResetToken.resolves({ _id: 'user123' });
 
-      const result = await authService.resetPassword({ token: 'valid-token', newPassword: 'newpassword123' });
-
-      expect(result).to.be.true;
-      expect(mockRepository.consumePasswordResetToken.calledOnce).to.be.true;
+      try {
+        const result = await authService.resetPassword({ token: 'valid-token', newPassword: 'newpassword123' });
+        expect(result).to.be.true;
+        expect(mockRepository.consumePasswordResetToken.calledOnce).to.be.true;
+      } catch (err) {
+        expect.fail(`Unexpected rejection: ${err.message}`);
+      }
     });
 
     it('should throw BadRequestError for invalid or expired token', async () => {

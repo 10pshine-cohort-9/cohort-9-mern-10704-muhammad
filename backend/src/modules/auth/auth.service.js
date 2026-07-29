@@ -126,6 +126,10 @@ const createAuthService = (repository) => {
         const expires = new Date(Date.now() + 60 * 60 * 1000);
 
         await repository.setPasswordResetToken(getId(user), { token: hashedToken, expires });
+
+        if (env.NODE_ENV !== 'production') {
+          logger.info({ userId: getId(user), rawToken }, 'Password reset token generated (Dev Mode)');
+        }
       }
 
       logger.info('Password reset requested');

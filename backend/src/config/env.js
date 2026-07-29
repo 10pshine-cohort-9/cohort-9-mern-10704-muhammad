@@ -22,11 +22,11 @@ const envSchema = z
   })
   .refine(
     (d) =>
-      d.NODE_ENV !== 'production' ||
+      d.NODE_ENV === 'test' ||
       (!d.JWT_ACCESS_SECRET.includes('default-access-secret-key-change-me') &&
         !d.JWT_REFRESH_SECRET.includes('default-refresh-secret-key-change-me')),
     {
-      message: 'Default JWT secrets must not be used in production environment.',
+      message: 'Default JWT secrets must not be used outside of test environment.',
       path: ['JWT_ACCESS_SECRET'],
     }
   );
