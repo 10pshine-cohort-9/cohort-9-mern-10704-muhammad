@@ -1,7 +1,7 @@
 const { ValidationError } = require('../errors');
 
-const validate = (schema) => (req, res, next) => {
-  const result = schema.safeParse(req.body);
+const validate = (schema, source = 'body') => (req, res, next) => {
+  const result = schema.safeParse(req[source]);
   if (!result.success) {
     const formattedErrors = result.error.errors.map((err) => ({
       field: err.path.join('.'),
@@ -9,7 +9,7 @@ const validate = (schema) => (req, res, next) => {
     }));
     return next(new ValidationError('Validation failed', formattedErrors));
   }
-  req.body = result.data;
+  req[source] = result.data;
   next();
 };
 
