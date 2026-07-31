@@ -4,6 +4,7 @@ const cors = require('cors');
 const authRoutes = require('./modules/auth/auth.routes');
 const foldersRoutes = require('./modules/folders/folders.routes');
 const tagsRoutes = require('./modules/tags/tags.routes');
+const notesRoutes = require('./modules/notes/notes.routes');
 const { sendSuccess } = require('./common/utils/response');
 const { NotFoundError } = require('./common/errors');
 const errorHandler = require('./common/middleware/errorHandler');
@@ -20,6 +21,7 @@ app.use(cors());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/folders', foldersRoutes);
 app.use('/api/v1/tags', tagsRoutes);
+app.use('/api/v1/notes', notesRoutes);
 
 // Health Check Endpoint
 app.get('/api/v1/health', (req, res) => {
