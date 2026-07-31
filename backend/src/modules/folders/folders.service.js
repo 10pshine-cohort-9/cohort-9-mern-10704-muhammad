@@ -57,6 +57,13 @@ const createFoldersService = (repository) => {
     async deleteFolder(userId, id) {
       const folder = await repository.findFolderById(id, userId);
       if (!folder) throw new NotFoundError('Folder not found');
+
+      const userFolders = await repository.findAllFoldersByUser(userId);
+      const childFolders = userFolders.filter((f) => String(f.parentId) === String(id));
+      for (const child of childFolders) {
+        await repository.updateFolder(child._id, userId, { parentId: null });
+      }
+
       return await repository.deleteFolder(id, userId);
     },
   };

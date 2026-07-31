@@ -22,7 +22,13 @@ const authGuard = asyncHandler(async (req, res, next) => {
     throw new AuthError('Invalid or expired authentication token');
   }
 
-  const user = await authRepository.findUserById(payload.sub);
+  let user;
+  try {
+    user = await authRepository.findUserById(payload.sub);
+  } catch (err) {
+    throw err;
+  }
+
   if (!user) {
     throw new AuthError('User no longer exists');
   }

@@ -24,10 +24,10 @@ const queryNoteSchema = z.object({
   search: z.string().optional(),
   status: z.enum(['active', 'archived', 'trashed']).optional().default('active'),
   pinned: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
-  createdAfter: z.string().datetime({ offset: true }).or(z.string()).optional(),
-  createdBefore: z.string().datetime({ offset: true }).or(z.string()).optional(),
-  updatedAfter: z.string().datetime({ offset: true }).or(z.string()).optional(),
-  updatedBefore: z.string().datetime({ offset: true }).or(z.string()).optional(),
+  createdAfter: z.coerce.date().optional(),
+  createdBefore: z.coerce.date().optional(),
+  updatedAfter: z.coerce.date().optional(),
+  updatedBefore: z.coerce.date().optional(),
 });
 
 module.exports = {

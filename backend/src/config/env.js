@@ -1,7 +1,7 @@
 const { z } = require('zod');
 require('dotenv').config();
 
-const durationRegex = /^(\d+([smhdw]|y)?)$/i;
+const durationRegex = /^[1-9]\d*[smhdwy]$/i;
 
 const envSchema = z
   .object({

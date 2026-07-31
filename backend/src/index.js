@@ -6,24 +6,30 @@ const server = app.listen(env.PORT, () => {
   logger.info(`Server running in ${env.NODE_ENV} mode on port ${env.PORT}`);
 });
 
-const handleFatalError = (type, error) => {
-  logger.error({ type, err: error }, `Fatal error occurred: ${type}`);
+let isShuttingDown = false;
+
+const shutdown = (signal, error = null, exitCode = 0) => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+
+  if (error) {
+    logger.error({ signal, err: error }, `Fatal error occurred: ${signal}`);
+  } else {
+    logger.info({ signal }, `Received ${signal}. Shutting down gracefully...`);
+  }
+
   server.close(() => {
-    process.exit(1);
+    process.exit(exitCode);
   });
 
-  // Force exit after 10s if connections fail to close
   setTimeout(() => {
-    process.exit(1);
+    process.exit(exitCode);
   }, 10000).unref();
 };
 
-process.on('unhandledRejection', (reason) => {
-  handleFatalError('unhandledRejection', reason);
-});
-
-process.on('uncaughtException', (error) => {
-  handleFatalError('uncaughtException', error);
-});
+process.on('unhandledRejection', (reason) => shutdown('unhandledRejection', reason, 1));
+process.on('uncaughtException', (error) => shutdown('uncaughtException', error, 1));
+process.on('SIGTERM', () => shutdown('SIGTERM', null, 0));
+process.on('SIGINT', () => shutdown('SIGINT', null, 0));
 
 module.exports = server;

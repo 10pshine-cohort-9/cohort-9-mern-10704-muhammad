@@ -15,7 +15,12 @@ app.set('trust proxy', 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 
 // Module Routes
 app.use('/api/v1/auth', authRoutes);
@@ -37,7 +42,7 @@ app.get('/api/v1/health', (req, res) => {
 
 // Handle 404 for unknown endpoints
 app.use((req, res, next) => {
-  next(new NotFoundError(`Endpoint ${req.originalUrl} not found`));
+  next(new NotFoundError(`Endpoint ${req.path} not found`));
 });
 
 // Global Error Handler

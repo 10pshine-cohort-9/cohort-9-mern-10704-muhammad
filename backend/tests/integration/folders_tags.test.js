@@ -85,6 +85,7 @@ describe('Folders and Tags Integration Tests', () => {
 
     it('DELETE /api/v1/folders/:id should return 200 with envelope', async () => {
       sinon.stub(foldersRepository, 'findFolderById').resolves({ _id: folderId, userId });
+      sinon.stub(foldersRepository, 'findAllFoldersByUser').resolves([]);
       sinon.stub(foldersRepository, 'deleteFolder').resolves({ _id: folderId });
 
       const res = await request(app)
