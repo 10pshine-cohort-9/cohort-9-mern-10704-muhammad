@@ -36,12 +36,21 @@ const envSchema = z
   )
   .refine(
     (d) =>
-      d.NODE_ENV === 'test' ||
-      (Boolean(d.CLOUDINARY_CLOUD_NAME) &&
-        Boolean(d.CLOUDINARY_API_KEY) &&
-        Boolean(d.CLOUDINARY_API_SECRET)),
+      d.NODE_ENV !== 'production' ||
+      (Boolean(d.FRONTEND_URL) && d.FRONTEND_URL !== 'http://localhost:3000'),
     {
-      message: 'Cloudinary credentials are required outside of test environment.',
+      message: 'FRONTEND_URL must be explicitly configured in production environment.',
+      path: ['FRONTEND_URL'],
+    }
+  )
+  .refine(
+    (d) =>
+      d.NODE_ENV === 'test' ||
+      (Boolean(d.CLOUDINARY_CLOUD_NAME.trim()) &&
+        Boolean(d.CLOUDINARY_API_KEY.trim()) &&
+        Boolean(d.CLOUDINARY_API_SECRET.trim())),
+    {
+      message: 'Non-empty Cloudinary credentials are required outside of test environment.',
       path: ['CLOUDINARY_CLOUD_NAME'],
     }
   );

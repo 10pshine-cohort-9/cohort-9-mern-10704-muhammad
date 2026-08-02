@@ -1,5 +1,12 @@
 const User = require('./auth.model');
 
+/**
+ * @param {Object} params
+ * @param {string} params.name
+ * @param {string} params.email
+ * @param {string} params.passwordHash
+ * @returns {Promise<Record<string, any>>} User object excluding passwordHash
+ */
 const createUser = async ({ name, email, passwordHash }) => {
   const user = await User.create({ name, email, passwordHash });
   const userObj = user.toObject();
@@ -35,6 +42,11 @@ const setPasswordResetToken = async (userId, { token, expires }) => {
   ).lean();
 };
 
+/**
+ * @param {string} hashedToken
+ * @param {string} newPasswordHash
+ * @returns {Promise<Object|null>}
+ */
 const consumePasswordResetToken = async (hashedToken, newPasswordHash) => {
   return await User.findOneAndUpdate(
     {
