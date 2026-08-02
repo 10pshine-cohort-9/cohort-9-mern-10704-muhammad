@@ -19,6 +19,9 @@ const envSchema = z
       .string()
       .regex(durationRegex, 'Invalid JWT_REFRESH_EXPIRES_IN format')
       .default('7d'),
+    CLOUDINARY_CLOUD_NAME: z.string().default(''),
+    CLOUDINARY_API_KEY: z.string().default(''),
+    CLOUDINARY_API_SECRET: z.string().default(''),
   })
   .refine(
     (d) =>
