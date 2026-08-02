@@ -16,6 +16,7 @@ const attachmentSchema = new mongoose.Schema(
     },
     url: { type: String, required: true },
     publicId: { type: String, required: true },
+    resourceType: { type: String, default: 'image' },
     filename: { type: String, required: true },
     mimeType: { type: String, required: true },
     size: { type: Number, required: true },

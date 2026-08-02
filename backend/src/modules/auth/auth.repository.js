@@ -2,7 +2,9 @@ const User = require('./auth.model');
 
 const createUser = async ({ name, email, passwordHash }) => {
   const user = await User.create({ name, email, passwordHash });
-  return user.toObject();
+  const userObj = user.toObject();
+  delete userObj.passwordHash;
+  return userObj;
 };
 
 const findUserByEmail = async (email, { includePassword = false } = {}) => {
@@ -34,23 +36,19 @@ const setPasswordResetToken = async (userId, { token, expires }) => {
 };
 
 const consumePasswordResetToken = async (hashedToken, newPasswordHash) => {
-  try {
-    return await User.findOneAndUpdate(
-      {
-        passwordResetToken: hashedToken,
-        passwordResetExpires: { $gt: new Date() },
-      },
-      {
-        passwordHash: newPasswordHash,
-        passwordResetToken: null,
-        passwordResetExpires: null,
-        $inc: { refreshTokenVersion: 1 },
-      },
-      { new: true }
-    ).lean();
-  } catch (err) {
-    throw err;
-  }
+  return await User.findOneAndUpdate(
+    {
+      passwordResetToken: hashedToken,
+      passwordResetExpires: { $gt: new Date() },
+    },
+    {
+      passwordHash: newPasswordHash,
+      passwordResetToken: null,
+      passwordResetExpires: null,
+      $inc: { refreshTokenVersion: 1 },
+    },
+    { new: true }
+  ).lean();
 };
 
 module.exports = {

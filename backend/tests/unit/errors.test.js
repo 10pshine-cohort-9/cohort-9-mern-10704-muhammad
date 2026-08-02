@@ -43,4 +43,11 @@ describe('Custom Error Classes Unit Tests', () => {
     expect(err.code).to.equal('VALIDATION_ERROR');
     expect(err.details).to.deep.equal(details);
   });
+
+  it('BadRequestError should have status 400 and code BAD_REQUEST', () => {
+    const err = new BadRequestError('Bad input');
+    expect(err.message).to.equal('Bad input');
+    expect(err.statusCode).to.equal(400);
+    expect(err.code).to.equal('BAD_REQUEST');
+  });
 });

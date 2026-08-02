@@ -14,6 +14,8 @@ const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const createAttachmentsService = (repository, notesRepository) => {
   return {
     async upload(userId, noteId, file) {
+      if (!file) throw new BadRequestError('File is required');
+
       const note = await notesRepository.findNoteById(noteId, userId);
       if (!note) throw new NotFoundError('Note not found');
 
@@ -37,6 +39,7 @@ const createAttachmentsService = (repository, notesRepository) => {
         userId,
         url: result.secure_url,
         publicId: result.public_id,
+        resourceType: result.resource_type || 'image',
         filename: file.originalname,
         mimeType: file.mimetype,
         size: file.size,
@@ -53,7 +56,9 @@ const createAttachmentsService = (repository, notesRepository) => {
       const attachment = await repository.findAttachmentById(id, userId);
       if (!attachment) throw new NotFoundError('Attachment not found');
 
-      await cloudinary.uploader.destroy(attachment.publicId, { resource_type: 'auto' });
+      await cloudinary.uploader.destroy(attachment.publicId, {
+        resource_type: attachment.resourceType || 'auto',
+      });
       return await repository.deleteAttachment(id, userId);
     },
   };

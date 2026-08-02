@@ -65,7 +65,7 @@ cohort-9-mern-10704-muhammad/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js (v18+)
+- Node.js (v20+)
 - npm or yarn
 
 ### Backend Setup

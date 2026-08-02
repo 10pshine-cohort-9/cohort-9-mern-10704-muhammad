@@ -26,6 +26,9 @@ const authGuard = asyncHandler(async (req, res, next) => {
   try {
     user = await authRepository.findUserById(payload.sub);
   } catch (err) {
+    if (err.name === 'CastError') {
+      throw new AuthError('Invalid or expired authentication token');
+    }
     throw err;
   }
 

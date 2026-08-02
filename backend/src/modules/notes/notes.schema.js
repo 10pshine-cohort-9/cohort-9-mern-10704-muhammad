@@ -23,7 +23,12 @@ const queryNoteSchema = z.object({
   tagId: z.string().optional(),
   search: z.string().optional(),
   status: z.enum(['active', 'archived', 'trashed']).optional().default('active'),
-  pinned: z.preprocess((val) => val === 'true' || val === true, z.boolean()).optional(),
+  pinned: z
+    .preprocess((val) => {
+      if (val === undefined || val === '') return undefined;
+      return val === 'true' || val === true;
+    }, z.boolean().optional())
+    .optional(),
   createdAfter: z.coerce.date().optional(),
   createdBefore: z.coerce.date().optional(),
   updatedAfter: z.coerce.date().optional(),

@@ -42,8 +42,15 @@ const createFoldersService = (repository) => {
         if (String(updates.parentId) === String(id)) {
           throw new BadRequestError('Folder cannot be its own parent');
         }
-        const parent = await repository.findFolderById(updates.parentId, userId);
-        if (!parent) throw new NotFoundError('Parent folder not found');
+        let currentParentId = updates.parentId;
+        while (currentParentId) {
+          if (String(currentParentId) === String(id)) {
+            throw new BadRequestError('Cannot set parent to a child folder');
+          }
+          const pDoc = await repository.findFolderById(currentParentId, userId);
+          if (!pDoc) throw new NotFoundError('Parent folder not found');
+          currentParentId = pDoc.parentId;
+        }
       }
 
       try {
@@ -67,6 +74,7 @@ const createFoldersService = (repository) => {
 
         return await repository.deleteFolder(id, userId);
       } catch (err) {
+        if (err.code === 11000) throw new ConflictError('Folder with this name already exists in target location');
         throw err;
       }
     },

@@ -89,6 +89,16 @@ describe('AttachmentsService Unit Tests', () => {
         expect(err.constructor.name).to.equal('BadRequestError');
       }
     });
+
+    it('should throw BadRequestError if file is missing', async () => {
+      try {
+        await service.upload(userId, noteId, null);
+        throw new Error('Should have thrown');
+      } catch (err) {
+        expect(err.constructor.name).to.equal('BadRequestError');
+        expect(err.message).to.equal('File is required');
+      }
+    });
   });
 
   describe('listByNote', () => {

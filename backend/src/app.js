@@ -1,6 +1,7 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const env = require('./config/env');
 const authRoutes = require('./modules/auth/auth.routes');
 const foldersRoutes = require('./modules/folders/folders.routes');
 const tagsRoutes = require('./modules/tags/tags.routes');
@@ -18,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: true,
+    origin: env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
   })
 );
