@@ -290,76 +290,105 @@ interface RelevantChunk {
   score: number;
 }
 
-export const augmententRetrival = async (
-  message: string,
+const getActiveNoteContext = async (
   userId: string | mongoose.Types.ObjectId,
   noteId?: string | null,
-) => {
+): Promise<string | null> => {
+  if (!noteId || !mongoose.isValidObjectId(noteId)) return null;
   try {
-    const contextParts: string[] = [];
+    const activeNote = await Note.findOne({
+      _id: toObjectId(noteId),
+      user: toObjectId(userId),
+      isDeleted: { $ne: true },
+    });
+    if (!activeNote) return null;
+    return `[Active Note Being Viewed by User]\nTitle: ${activeNote.title}\nContent: ${activeNote.content}`;
+  } catch (err) {
+    logger.error('Failed to lookup active note context', {
+      error: err instanceof Error ? err.message : err,
+      noteId,
+      userId: userId.toString(),
+    });
+    throw err;
+  }
+};
 
-    if (noteId && mongoose.isValidObjectId(noteId)) {
-      const activeNote = await Note.findOne({
-        _id: toObjectId(noteId),
-        user: toObjectId(userId),
-        isDeleted: { $ne: true },
-      });
-      if (activeNote) {
-        contextParts.push(
-          `[Active Note Being Viewed by User]\nTitle: ${activeNote.title}\nContent: ${activeNote.content}`
-        );
-      }
-    }
-
-    try {
-      const chatMessageEmbed = await getEmbedding(message);
-      const relevantChunks = await NoteChunk.aggregate<RelevantChunk>([
-        {
-          $vectorSearch: {
-            index: 'vector_index',
-            path: 'embedding',
-            queryVector: chatMessageEmbed,
-            numCandidates: 100,
-            limit: 5,
-            filter: { user: toObjectId(userId), isDeleted: { $ne: true } },
-          },
+const getVectorOrFallbackContext = async (
+  userId: string | mongoose.Types.ObjectId,
+  message: string,
+  hasActiveContext: boolean,
+): Promise<string | null> => {
+  try {
+    const chatMessageEmbed = await getEmbedding(message);
+    const relevantChunks = await NoteChunk.aggregate<RelevantChunk>([
+      {
+        $vectorSearch: {
+          index: 'vector_index',
+          path: 'embedding',
+          queryVector: chatMessageEmbed,
+          numCandidates: 100,
+          limit: 5,
+          filter: { user: toObjectId(userId), isDeleted: { $ne: true } },
         },
-        {
-          $project: {
-            content: 1,
-            noteTitle: 1,
-            score: { $meta: 'vectorSearchScore' },
-          },
+      },
+      {
+        $project: {
+          content: 1,
+          noteTitle: 1,
+          score: { $meta: 'vectorSearchScore' },
         },
-      ]);
+      },
+    ]);
 
-      const vectorContext = relevantChunks
-        .map((chunk, i) => `[Related Note Chunk ${i + 1}] Title: ${chunk.noteTitle}\nContent: ${chunk.content}`)
-        .join('\n\n');
+    const vectorContext = relevantChunks
+      .map((chunk, i) => `[Related Note Chunk ${i + 1}] Title: ${chunk.noteTitle}\nContent: ${chunk.content}`)
+      .join('\n\n');
 
-      if (vectorContext) {
-        contextParts.push(vectorContext);
-      }
-    } catch (embeddingErr) {
-      logger.warn('Vector search embedding failed, falling back to text search context', {
-        error: embeddingErr instanceof Error ? embeddingErr.message : embeddingErr,
-      });
+    return vectorContext || null;
+  } catch (embeddingErr) {
+    logger.warn('Vector search embedding failed, falling back to text search context', {
+      error: embeddingErr instanceof Error ? embeddingErr.message : embeddingErr,
+    });
 
-      if (contextParts.length === 0) {
-        const MAX_FALLBACK_CHARS = 1500;
-        const fallbackNotes = await Note.find({ user: userId, isDeleted: { $ne: true } })
-          .sort({ updatedAt: -1 })
-          .limit(5);
-        const fallbackContext = fallbackNotes
+    if (!hasActiveContext) {
+      const MAX_FALLBACK_CHARS = 1500;
+      const fallbackNotes = await Note.find({ user: userId, isDeleted: { $ne: true } })
+        .sort({ updatedAt: -1 })
+        .limit(5);
+      return (
+        fallbackNotes
           .map(
             (n, i) =>
               `[Note ${i + 1}] Title: ${n.title}\nContent: ${n.content.slice(0, MAX_FALLBACK_CHARS)}`
           )
-          .join('\n\n');
-        if (fallbackContext) {
-          contextParts.push(fallbackContext);
-        }
-      }
+          .join('\n\n') || null
+      );
+    }
+    return null;
+  }
+};
+
+export interface RAGRetrievalResult {
+  reply: string | undefined;
+  success: boolean;
+}
+
+export const augmententRetrival = async (
+  message: string,
+  userId: string | mongoose.Types.ObjectId,
+  noteId?: string | null,
+): Promise<RAGRetrievalResult> => {
+  try {
+    const contextParts: string[] = [];
+
+    const activeContext = await getActiveNoteContext(userId, noteId);
+    if (activeContext) {
+      contextParts.push(activeContext);
+    }
+
+    const vectorContext = await getVectorOrFallbackContext(userId, message, contextParts.length > 0);
+    if (vectorContext) {
+      contextParts.push(vectorContext);
     }
 
     const context = contextParts.join('\n\n');

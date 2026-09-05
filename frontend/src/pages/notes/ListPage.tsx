@@ -305,8 +305,11 @@ export const ListPage = (): ReactElement | null => {
 
                   {activeMenuNoteId === note._id && (
                     <>
-                      <div
-                        className="fixed inset-0 z-30"
+                      <button
+                        type="button"
+                        aria-label="Close actions menu backdrop"
+                        tabIndex={-1}
+                        className="fixed inset-0 z-30 cursor-default"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -314,9 +317,7 @@ export const ListPage = (): ReactElement | null => {
                           setFolderTargetNoteId(null);
                         }}
                       />
-                      <div
-                        className="absolute right-0 bottom-11 w-56 bg-white rounded-2xl shadow-xl border border-outline-variant py-1.5 z-40 text-left animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
-                        onClick={(e) => e.stopPropagation()}
+                      <div className="absolute right-0 bottom-11 w-56 bg-white rounded-2xl shadow-xl border border-outline-variant py-1.5 z-40 text-left animate-in fade-in zoom-in-95 duration-150 overflow-hidden"
                       >
                         <div
                           onMouseEnter={() => setIsHoveringFolderSubmenu(true)}

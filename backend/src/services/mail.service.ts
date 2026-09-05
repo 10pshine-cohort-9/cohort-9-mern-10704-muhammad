@@ -28,10 +28,18 @@ const escapeHtml = (str: string): string =>
     return escapeMap[match] || match;
   });
 
-export const sendMail = async (to: string, token: string) => {
+const getBaseUrl = (): string => {
+  return process.env.BASE_URL || 'https://localhost:8000';
+};
+
+const getFrontendUrl = (): string => {
+  return process.env.FRONTEND_URL || 'https://localhost:5173';
+};
+
+export const sendMail = async (to: string, token: string): Promise<void> => {
   try {
-    const BASE_URL = process.env.BASE_URL || 'http://localhost:8000';
-    const verifyLink = `${BASE_URL}/api/v1/auth/verify/${encodeURIComponent(token)}`;
+    const baseUrl = getBaseUrl();
+    const verifyLink = `${baseUrl}/api/v1/auth/verify/${encodeURIComponent(token)}`;
     await transport.sendMail({
       from: '"Notes App"',
       to,
@@ -45,10 +53,10 @@ export const sendMail = async (to: string, token: string) => {
   }
 };
 
-export const sendForgotPasswordMail = async (to: string, token: string) => {
+export const sendForgotPasswordMail = async (to: string, token: string): Promise<void> => {
   try {
-    const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
-    const resetLink = `${FRONTEND_URL}/reset-password/${encodeURIComponent(token)}`;
+    const frontendUrl = getFrontendUrl();
+    const resetLink = `${frontendUrl}/reset-password/${encodeURIComponent(token)}`;
     await transport.sendMail({
       from: '"Notes App"',
       to,
@@ -67,7 +75,7 @@ export const sendForgotPasswordMail = async (to: string, token: string) => {
 export const sendPasswordResetSuccessMail = async (
   to: string,
   username: string,
-) => {
+): Promise<void> => {
   try {
     const safeUsername = escapeHtml(username);
     await transport.sendMail({
@@ -85,7 +93,7 @@ export const sendPasswordResetSuccessMail = async (
   }
 };
 
-export const sendAccountVerifiedMail = async (to: string, username: string) => {
+export const sendAccountVerifiedMail = async (to: string, username: string): Promise<void> => {
   try {
     const safeUsername = escapeHtml(username);
     await transport.sendMail({
@@ -111,10 +119,10 @@ export type NewLoginMailOptions = {
   device: string;
 };
 
-export const sendNewLoginMail = async (options: NewLoginMailOptions) => {
+export const sendNewLoginMail = async (options: NewLoginMailOptions): Promise<void> => {
   try {
-    const BASE_URL = process.env.BASE_URL || 'http://localhost:8000';
-    const resetLink = `${BASE_URL}/api/v1/auth/forgot-password`;
+    const baseUrl = getBaseUrl();
+    const resetLink = `${baseUrl}/api/v1/auth/forgot-password`;
     const html = HTML_NEW_LOGIN.replace(/{{USERNAME}}/g, escapeHtml(options.username))
       .replace(/{{LOGIN_TIME}}/g, escapeHtml(options.time))
       .replace(/{{LOGIN_LOCATION}}/g, escapeHtml(options.location))
